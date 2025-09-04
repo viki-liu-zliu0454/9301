@@ -1227,7 +1227,6 @@
             margin: 0 auto;
             display: block;
         }
-        }
 
         /* Academic Programs Legend Color Styles */
         .design-column {
@@ -2131,7 +2130,7 @@
                             <canvas id="q3Chart" width="300" height="200"></canvas>
                         </div>
                         <div class="viz-item">
-                            <h4>Flexible Course Scheduling</h4>
+                            <h4>Integrated Calendar Management</h4>
                             <canvas id="q4Chart" width="300" height="200"></canvas>
                         </div>
                         <div class="viz-item">
@@ -2187,41 +2186,33 @@
                             <h4>Feedback Methods</h4>
                             <canvas id="q17Chart" width="300" height="200"></canvas>
                         </div>
-                        <div class="viz-item">
-                            <h4>Podcast Platform Interest</h4>
-                            <canvas id="q18Chart" width="300" height="200"></canvas>
-                        </div>
                     </div>
                     
                     <!-- Gamification Questions -->
                     <div class="viz-category" data-category="gamification" style="display: none;">
                         <div class="viz-item">
-                            <h4>Gamification Motivation</h4>
-                            <canvas id="q19Chart" width="300" height="200"></canvas>
+                            <h4>Gamification Learning Motivation</h4>
+                            <canvas id="q18Chart" width="300" height="200"></canvas>
                         </div>
                         <div class="viz-item">
-                            <h4>Game Elements Preference</h4>
-                            <canvas id="q20Chart" width="300" height="200"></canvas>
+                            <h4>Which game elements motivate you the most?</h4>
+                            <canvas id="q21Chart" width="300" height="200"></canvas>
                         </div>
                     </div>
                     
                     <!-- Resources Questions -->
                     <div class="viz-category" data-category="resources" style="display: none;">
                         <div class="viz-item">
-                            <h4>Self-Learning Resources</h4>
-                            <canvas id="q21Chart" width="300" height="200"></canvas>
+                            <h4>Campus Activity Interest</h4>
+                            <canvas id="q19Chart" width="300" height="200"></canvas>
                         </div>
                     </div>
                     
                     <!-- Activities Questions -->
                     <div class="viz-category" data-category="activities" style="display: none;">
                         <div class="viz-item">
-                            <h4>Campus Activities Interest</h4>
-                            <canvas id="q22Chart" width="300" height="200"></canvas>
-                        </div>
-                        <div class="viz-item">
                             <h4>Career Guidance Preference</h4>
-                            <canvas id="q23Chart" width="300" height="200"></canvas>
+                            <canvas id="q20Chart" width="300" height="200"></canvas>
                         </div>
                     </div>
                 </div>
@@ -2395,9 +2386,9 @@
                     labels: ['By hour', 'By day', 'By week', 'By month'],
                     data: [98, 65, 45, 9]
                 },
-                q4: { // Flexible Course Scheduling
-                    labels: ['Yes, very much', 'Somewhat needed', 'Neutral', 'Not needed'],
-                    data: [125, 49, 35, 8]
+                q4: { // Integrated Calendar Management
+                    labels: ['Yes', 'No'],
+                    data: [189, 28]
                 },
                 q5: { // Flexible Course Scheduling Need
                     labels: ['Yes, very much', 'Somewhat needed', 'Neutral', 'Not needed'],
@@ -2451,25 +2442,21 @@
                     labels: ['Will listen', 'Listen and discuss', 'Create podcasts', 'Not interested'],
                     data: [85, 83, 6, 41]
                 },
-                q18: { // Gamification Motivation
-                    labels: ['Strongly agree', 'Agree', 'Neutral', 'Disagree', 'Strongly disagree'],
-                    data: [42, 70, 67, 17, 21]
+                q18: { // Gamification Learning Motivation
+                    labels: ['Strongly disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly agree'],
+                    data: [21, 17, 67, 70, 42]
                 },
-                q19: { // Game Elements Preference
-                    labels: ['Points / Leaderboards', 'Achievement badges / Levels', 'Consecutive sign-in rewards', 'Group competition / Collaboration', 'Map exploration', 'Other'],
-                    data: [106, 114, 73, 86, 86, 6]
+                q19: { // Campus Activity Interest
+                    labels: ['Cross-cultural food night', 'Procrastination support group', 'Academic roast night', 'Library Rave Party', '24-hour design marathon', 'None', 'Chill social activities', '无'],
+                    data: [115, 99, 77, 64, 55, 25, 1, 1]
                 },
-                q20: { // Self-Learning Resources
-                    labels: ['YouTube', 'Online courses', 'Bilibili', 'Library resources', 'Rednote', 'GPT'],
-                    data: [136, 104, 105, 80, 90, 10]
-                },
-                q21: { // Campus Activities Interest
-                    labels: ['Library Rave Party', 'Design marathon', 'Food night', 'Academic roast', 'Support group', 'None'],
-                    data: [64, 99, 55, 115, 77, 27]
-                },
-                q22: { // Career Guidance Preference
+                q20: { // Career Guidance Preference
                     labels: ['Real project participation', 'Access to resources'],
                     data: [65, 35]
+                },
+                q21: { // Which game elements motivate you the most?
+                    labels: ['Achievement badges / Levels', 'Points / Leaderboards', 'Group competition / Collaboration', 'Map exploration', 'Consecutive sign-in rewards', 'Other'],
+                    data: [114, 106, 86, 86, 73, 5]
                 }
             }
         };
@@ -2891,7 +2878,7 @@
                 { id: 'q1Chart', data: surveyData.questions.q1, colors: ['#E67E22', '#F39C12', '#F1C40F', '#E74C3C'], type: 'pie' },
                 { id: 'q2Chart', data: surveyData.questions.q2, colors: ['#E74C3C', '#F39C12', '#3498DB', '#27AE60', '#9B59B6'], type: 'pie' },
                 { id: 'q3Chart', data: surveyData.questions.q3, colors: ['#E74C3C', '#27AE60', '#F39C12', '#9B59B6'], type: 'pie' },
-                { id: 'q4Chart', data: surveyData.questions.q4, colors: ['#E74C3C', '#27AE60', '#F39C12', '#9B59B6'], type: 'pie' },
+                { id: 'q4Chart', data: surveyData.questions.q4, colors: ['#3498DB', '#E74C3C'], type: 'pie' },
                 { id: 'q5Chart', data: surveyData.questions.q5, colors: ['#E74C3C', '#27AE60', '#F39C12', '#9B59B6'], type: 'pie' },
                 { id: 'q6Chart', data: surveyData.questions.q6, colors: ['#27AE60', '#E74C3C'], type: 'doughnut' },
                 { id: 'q7Chart', data: surveyData.questions.q7, color: '#16A085', type: 'bar' },
@@ -2905,11 +2892,10 @@
                 { id: 'q15Chart', data: surveyData.questions.q15, colors: ['#27AE60', '#E74C3C'], type: 'doughnut' },
                 { id: 'q16Chart', data: surveyData.questions.q16, color: '#F39C12', type: 'bar' },
                 { id: 'q17Chart', data: surveyData.questions.q17, colors: ['#9B59B6', '#BDC3C7', '#95A5A6', '#7F8C8D'], type: 'pie' },
-                { id: 'q18Chart', data: surveyData.questions.q18, color: '#34495E', type: 'bar' },
+                { id: 'q18Chart', data: surveyData.questions.q18, color: '#E74C3C', type: 'bar' },
                 { id: 'q19Chart', data: surveyData.questions.q19, color: '#E74C3C', type: 'bar' },
-                { id: 'q20Chart', data: surveyData.questions.q20, color: '#F39C12', type: 'bar' },
-                { id: 'q21Chart', data: surveyData.questions.q21, color: '#1ABC9C', type: 'bar' },
-                { id: 'q22Chart', data: surveyData.questions.q22, colors: ['#E74C3C', '#27AE60'], type: 'doughnut' }
+                { id: 'q20Chart', data: surveyData.questions.q20, colors: ['#E74C3C', '#27AE60'], type: 'doughnut' },
+                { id: 'q21Chart', data: surveyData.questions.q21, color: '#E74C3C', type: 'bar' }
             ];
 
             chartConfigs.forEach(config => {
