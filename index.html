@@ -1663,7 +1663,7 @@
                             <div class="metric-row">
                                 <div class="metric-label">Collaborative Learning</div>
                                 <div class="metric-value">89 students (77%)</div>
-                            </div>
+                    </div>
                             <div class="metric-row">
                                 <div class="metric-label">Peer Feedback</div>
                                 <div class="metric-value">Highly valued (83%)</div>
@@ -2103,7 +2103,6 @@
                     <button class="viz-tab active" data-category="learning">Learning Methods</button>
                     <button class="viz-tab" data-category="time">Time Management</button>
                     <button class="viz-tab" data-category="teaching">Teaching</button>
-                    <button class="viz-tab" data-category="group">Group Work</button>
                     <button class="viz-tab" data-category="social">Social Interaction</button>
                     <button class="viz-tab" data-category="feedback">Feedback</button>
                     <button class="viz-tab" data-category="gamification">Gamification</button>
@@ -2123,24 +2122,24 @@
                             <h4>Self-Learning Preference</h4>
                             <canvas id="q2Chart" width="300" height="200"></canvas>
                         </div>
-                        <div class="viz-item">
-                            <h4>Learning Knowledge Definition</h4>
-                            <canvas id="q3Chart" width="300" height="200"></canvas>
-                        </div>
-                        <div class="viz-item">
-                            <h4>Effective Learning Methods</h4>
-                            <canvas id="q4Chart" width="300" height="200"></canvas>
-                        </div>
                     </div>
                     
                     <!-- Time Management Questions -->
                     <div class="viz-category" data-category="time" style="display: none;">
                         <div class="viz-item">
-                            <h4>Time Management Difficulties</h4>
+                            <h4>Study and Life Organization</h4>
+                            <canvas id="q3Chart" width="300" height="200"></canvas>
+                        </div>
+                        <div class="viz-item">
+                            <h4>Flexible Course Scheduling</h4>
+                            <canvas id="q4Chart" width="300" height="200"></canvas>
+                        </div>
+                        <div class="viz-item">
+                            <h4>Flexible Course Scheduling Need</h4>
                             <canvas id="q5Chart" width="300" height="200"></canvas>
                         </div>
                         <div class="viz-item">
-                            <h4>Time Management Tools</h4>
+                            <h4>Integrated Calendar Management</h4>
                             <canvas id="q6Chart" width="300" height="200"></canvas>
                         </div>
                     </div>
@@ -2148,26 +2147,15 @@
                     <!-- Teaching Questions -->
                     <div class="viz-category" data-category="teaching" style="display: none;">
                         <div class="viz-item">
-                            <h4>Teaching Style Preference</h4>
+                            <h4>Learning Knowledge Definition</h4>
                             <canvas id="q7Chart" width="300" height="200"></canvas>
                         </div>
                         <div class="viz-item">
-                            <h4>Assessment Methods</h4>
+                            <h4>Effective Learning Methods</h4>
                             <canvas id="q8Chart" width="300" height="200"></canvas>
                         </div>
                     </div>
                     
-                    <!-- Group Work Questions -->
-                    <div class="viz-category" data-category="group" style="display: none;">
-                        <div class="viz-item">
-                            <h4>Group Work Preference</h4>
-                            <canvas id="q9Chart" width="300" height="200"></canvas>
-                        </div>
-                        <div class="viz-item">
-                            <h4>Group Work Challenges</h4>
-                            <canvas id="q11Chart" width="300" height="200"></canvas>
-                        </div>
-                    </div>
                     
                     <!-- Social Interaction Questions -->
                     <div class="viz-category" data-category="social" style="display: none;">
@@ -2273,15 +2261,15 @@
                         <div class="stat-item">
                             <div class="stat-label">Total Students</div>
                             <div class="stat-value">215</div>
-                        </div>
+                </div>
                         <div class="stat-item">
                             <div class="stat-label">International Students</div>
                             <div class="stat-value">200 (93.0%)</div>
-                        </div>
+            </div>
                         <div class="stat-item">
                             <div class="stat-label">Domestic Students</div>
                             <div class="stat-value">15 (7.0%)</div>
-                        </div>
+            </div>
                     </div>
                 </div>
             </div>
@@ -2401,86 +2389,86 @@
                 },
                 q2: { // Self-Learning Preference
                     labels: ['Strongly prefer', 'Somewhat prefer', 'Neutral', 'Slightly prefer not', 'Strongly prefer not'],
-                    data: [22, 38, 32, 18, 5]
+                    data: [86, 59, 40, 29, 3]
                 },
-                q3: { // Learning Knowledge Definition
-                    labels: ['Apply in projects', 'Explain to others', 'Group discussions', 'Complete quizzes', 'Other'],
-                    data: [85, 72, 68, 45, 12]
+                q3: { // Study and Life Organization
+                    labels: ['By hour', 'By day', 'By week', 'By month'],
+                    data: [98, 65, 45, 9]
                 },
-                q4: { // Effective Learning Methods
-                    labels: ['Studio workshops', 'Tutorials', 'Self-learning', 'One-on-one tutoring', 'Lectures'],
-                    data: [80, 75, 62, 52, 42]
+                q4: { // Flexible Course Scheduling
+                    labels: ['Yes, very much', 'Somewhat needed', 'Neutral', 'Not needed'],
+                    data: [125, 49, 35, 8]
                 },
-                q5: { // Time Management Difficulties
+                q5: { // Flexible Course Scheduling Need
+                    labels: ['Yes, very much', 'Somewhat needed', 'Neutral', 'Not needed'],
+                    data: [125, 49, 35, 8]
+                },
+                q6: { // Integrated Calendar Management
                     labels: ['Yes', 'No'],
-                    data: [82, 25]
+                    data: [189, 28]
                 },
-                q6: { // Time Management Tools
-                    labels: ['Digital calendars', 'Time blocking', 'To-do lists', 'Pomodoro technique', 'Other'],
-                    data: [54, 48, 35, 28, 15]
+                q7: { // Learning Knowledge Definition
+                    labels: ['Able to complete quizzes', 'Able to explain clearly in group discussions', 'Able to apply in projects', 'Able to explain to others', 'Other'],
+                    data: [82, 126, 172, 163, 4]
                 },
-                q7: { // Teaching Style Preference
-                    labels: ['Interactive', 'Traditional lectures', 'Mixed approach', 'Project-based', 'Other'],
-                    data: [68, 25, 45, 52, 8]
-                },
-                q8: { // Assessment Methods
-                    labels: ['Portfolio', 'Projects', 'Presentations', 'Exams', 'Peer review'],
-                    data: [72, 68, 55, 35, 42]
+                q8: { // Effective Learning Methods
+                    labels: ['Lectures', 'Tutorials', 'Studio workshops', 'One-on-one tutoring', 'Self-learning'],
+                    data: [65, 137, 109, 124, 115]
                 },
                 q9: { // Group Work Preference
                     labels: ['Strongly prefer', 'Somewhat prefer', 'Neutral', 'Slightly prefer not', 'Strongly prefer not'],
                     data: [35, 48, 25, 15, 5]
                 },
-                q11: { // Group Work Challenges
+                q10: { // Group Work Challenges
                     labels: ['Communication', 'Scheduling', 'Different skill levels', 'Unequal participation', 'Other'],
                     data: [58, 52, 45, 38, 12]
                 },
-                q12: { // Group Work Values
+                q11: { // Group Work Values
                     labels: ['Shared goals', 'Personality match', 'Complementary skills', 'Work attitude', 'Other'],
-                    data: [72, 45, 68, 55, 15]
+                    data: [127, 113, 137, 164, 1]
                 },
-                q13: { // Share Personality Traits
+                q12: { // Share Personality Traits
                     labels: ['Willing', 'Unwilling'],
-                    data: [68, 32]
+                    data: [186, 29]
                 },
-                q14: { // Learn Others' Personality
+                q13: { // Learn Others' Personality
                     labels: ['Willing', 'Unwilling'],
-                    data: [75, 25]
+                    data: [204, 11]
                 },
-                q15: { // Help Classmates
+                q14: { // Help Classmates
                     labels: ['Yes', 'No'],
-                    data: [82, 18]
+                    data: [211, 4]
                 },
-                q16: { // Receive Help from Classmates
+                q15: { // Receive Help from Classmates
                     labels: ['Yes', 'No'],
-                    data: [89, 11]
+                    data: [205, 10]
                 },
-                q17: { // Feedback Methods
+                q16: { // Feedback Methods
                     labels: ['Anonymous complaint wall', 'Live comments', 'Emojis & memes'],
-                    data: [65, 45, 38]
+                    data: [160, 73, 76]
                 },
-                q18: { // Podcast Platform Interest
+                q17: { // Podcast Platform Interest
                     labels: ['Will listen', 'Listen and discuss', 'Create podcasts', 'Not interested'],
-                    data: [42, 35, 18, 25]
+                    data: [85, 83, 6, 41]
                 },
-                q19: { // Gamification Motivation
+                q18: { // Gamification Motivation
                     labels: ['Strongly agree', 'Agree', 'Neutral', 'Disagree', 'Strongly disagree'],
-                    data: [25, 43, 22, 8, 2]
+                    data: [42, 70, 67, 17, 21]
                 },
-                q20: { // Game Elements Preference
-                    labels: ['Achievement badges', 'Progress tracking', 'Points/Leaderboards', 'Group competition', 'Map exploration', 'Other'],
-                    data: [45, 52, 38, 35, 22, 15]
+                q19: { // Game Elements Preference
+                    labels: ['Points / Leaderboards', 'Achievement badges / Levels', 'Consecutive sign-in rewards', 'Group competition / Collaboration', 'Map exploration', 'Other'],
+                    data: [106, 114, 73, 86, 86, 6]
                 },
-                q21: { // Self-Learning Resources
-                    labels: ['YouTube', 'Online courses', 'Bilibili', 'Library resources', 'Rednote', 'Other'],
-                    data: [78, 65, 42, 35, 28, 22]
+                q20: { // Self-Learning Resources
+                    labels: ['YouTube', 'Online courses', 'Bilibili', 'Library resources', 'Rednote', 'GPT'],
+                    data: [136, 104, 105, 80, 90, 10]
                 },
-                q22: { // Campus Activities Interest
-                    labels: ['Library Rave Party', 'Design marathon', 'Food night', 'Academic roast', 'Support group', 'Other'],
-                    data: [35, 48, 42, 28, 32, 18]
+                q21: { // Campus Activities Interest
+                    labels: ['Library Rave Party', 'Design marathon', 'Food night', 'Academic roast', 'Support group', 'None'],
+                    data: [64, 99, 55, 115, 77, 27]
                 },
-                q23: { // Career Guidance Preference
-                    labels: ['Access to resources', 'Real project participation'],
+                q22: { // Career Guidance Preference
+                    labels: ['Real project participation', 'Access to resources'],
                     data: [65, 35]
                 }
             }
@@ -2898,30 +2886,30 @@
         }
 
         function createQuestionCharts() {
-            // Create charts for Q1-Q23
+            // Create charts for Q1-Q22
             const chartConfigs = [
                 { id: 'q1Chart', data: surveyData.questions.q1, colors: ['#E67E22', '#F39C12', '#F1C40F', '#E74C3C'], type: 'pie' },
-                { id: 'q2Chart', data: surveyData.questions.q2, color: '#9B59B6', type: 'bar' },
-                { id: 'q3Chart', data: surveyData.questions.q3, color: '#3498DB', type: 'bar' },
-                { id: 'q4Chart', data: surveyData.questions.q4, color: '#27AE60', type: 'bar' },
-                { id: 'q5Chart', data: surveyData.questions.q5, colors: ['#E74C3C', '#27AE60'], type: 'doughnut' },
-                { id: 'q6Chart', data: surveyData.questions.q6, color: '#8E44AD', type: 'bar' },
+                { id: 'q2Chart', data: surveyData.questions.q2, colors: ['#E74C3C', '#F39C12', '#3498DB', '#27AE60', '#9B59B6'], type: 'pie' },
+                { id: 'q3Chart', data: surveyData.questions.q3, colors: ['#E74C3C', '#27AE60', '#F39C12', '#9B59B6'], type: 'pie' },
+                { id: 'q4Chart', data: surveyData.questions.q4, colors: ['#E74C3C', '#27AE60', '#F39C12', '#9B59B6'], type: 'pie' },
+                { id: 'q5Chart', data: surveyData.questions.q5, colors: ['#E74C3C', '#27AE60', '#F39C12', '#9B59B6'], type: 'pie' },
+                { id: 'q6Chart', data: surveyData.questions.q6, colors: ['#27AE60', '#E74C3C'], type: 'doughnut' },
                 { id: 'q7Chart', data: surveyData.questions.q7, color: '#16A085', type: 'bar' },
                 { id: 'q8Chart', data: surveyData.questions.q8, color: '#D35400', type: 'bar' },
                 { id: 'q9Chart', data: surveyData.questions.q9, color: '#C0392B', type: 'bar' },
-                { id: 'q11Chart', data: surveyData.questions.q11, color: '#2980B9', type: 'bar' },
-                { id: 'q12Chart', data: surveyData.questions.q12, color: '#E67E22', type: 'bar' },
+                { id: 'q10Chart', data: surveyData.questions.q10, color: '#2980B9', type: 'bar' },
+                { id: 'q11Chart', data: surveyData.questions.q11, color: '#E67E22', type: 'bar' },
+                { id: 'q12Chart', data: surveyData.questions.q12, colors: ['#27AE60', '#E74C3C'], type: 'doughnut' },
                 { id: 'q13Chart', data: surveyData.questions.q13, colors: ['#27AE60', '#E74C3C'], type: 'doughnut' },
                 { id: 'q14Chart', data: surveyData.questions.q14, colors: ['#27AE60', '#E74C3C'], type: 'doughnut' },
                 { id: 'q15Chart', data: surveyData.questions.q15, colors: ['#27AE60', '#E74C3C'], type: 'doughnut' },
-                { id: 'q16Chart', data: surveyData.questions.q16, colors: ['#27AE60', '#E74C3C'], type: 'doughnut' },
-                { id: 'q17Chart', data: surveyData.questions.q17, color: '#F39C12', type: 'bar' },
-                { id: 'q18Chart', data: surveyData.questions.q18, colors: ['#9B59B6', '#BDC3C7', '#95A5A6', '#7F8C8D'], type: 'pie' },
-                { id: 'q19Chart', data: surveyData.questions.q19, color: '#34495E', type: 'bar' },
-                { id: 'q20Chart', data: surveyData.questions.q20, color: '#E74C3C', type: 'bar' },
-                { id: 'q21Chart', data: surveyData.questions.q21, color: '#F39C12', type: 'bar' },
-                { id: 'q22Chart', data: surveyData.questions.q22, color: '#1ABC9C', type: 'bar' },
-                { id: 'q23Chart', data: surveyData.questions.q23, colors: ['#27AE60', '#E74C3C'], type: 'doughnut' }
+                { id: 'q16Chart', data: surveyData.questions.q16, color: '#F39C12', type: 'bar' },
+                { id: 'q17Chart', data: surveyData.questions.q17, colors: ['#9B59B6', '#BDC3C7', '#95A5A6', '#7F8C8D'], type: 'pie' },
+                { id: 'q18Chart', data: surveyData.questions.q18, color: '#34495E', type: 'bar' },
+                { id: 'q19Chart', data: surveyData.questions.q19, color: '#E74C3C', type: 'bar' },
+                { id: 'q20Chart', data: surveyData.questions.q20, color: '#F39C12', type: 'bar' },
+                { id: 'q21Chart', data: surveyData.questions.q21, color: '#1ABC9C', type: 'bar' },
+                { id: 'q22Chart', data: surveyData.questions.q22, colors: ['#E74C3C', '#27AE60'], type: 'doughnut' }
             ];
 
             chartConfigs.forEach(config => {
