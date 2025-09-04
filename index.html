@@ -2214,6 +2214,10 @@
                             <h4>Career Guidance Preference</h4>
                             <canvas id="q20Chart" width="300" height="200"></canvas>
                         </div>
+                        <div class="viz-item">
+                            <h4>Campus Activities Interest</h4>
+                            <canvas id="q22Chart" width="300" height="200"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2457,6 +2461,10 @@
                 q21: { // Which game elements motivate you the most?
                     labels: ['Achievement badges / Levels', 'Points / Leaderboards', 'Group competition / Collaboration', 'Map exploration', 'Consecutive sign-in rewards', 'Other'],
                     data: [114, 106, 86, 86, 73, 5]
+                },
+                q22: { // Campus Activities Interest
+                    labels: ['Cross-cultural food night', 'Procrastination support group', 'Academic roast night', 'Library Rave Party', '24-hour design marathon', 'None', 'Chill social activities'],
+                    data: [115, 99, 77, 64, 55, 25, 1]
                 }
             }
         };
@@ -2895,7 +2903,8 @@
                 { id: 'q18Chart', data: surveyData.questions.q18, color: '#E74C3C', type: 'bar' },
                 { id: 'q19Chart', data: surveyData.questions.q19, color: '#E74C3C', type: 'bar' },
                 { id: 'q20Chart', data: surveyData.questions.q20, colors: ['#E74C3C', '#27AE60'], type: 'doughnut' },
-                { id: 'q21Chart', data: surveyData.questions.q21, color: '#E74C3C', type: 'bar' }
+                { id: 'q21Chart', data: surveyData.questions.q21, color: '#E74C3C', type: 'bar' },
+                { id: 'q22Chart', data: surveyData.questions.q22, color: '#E74C3C', type: 'bar' }
             ];
 
             chartConfigs.forEach(config => {
