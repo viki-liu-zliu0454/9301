@@ -1,0 +1,2996 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Data Visualization Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* 莫兰迪色系 */
+            --primary-50: #f8fafc;
+            --primary-100: #f1f5f9;
+            --primary-200: #e2e8f0;
+            --primary-300: #cbd5e1;
+            --primary-400: #94a3b8;
+            --primary-500: #64748b;
+            --primary-600: #475569;
+            --primary-700: #334155;
+            --primary-800: #1e293b;
+            --primary-900: #0f172a;
+            
+            --accent-50: #fef7f0;
+            --accent-100: #fdeee0;
+            --accent-200: #fad9c1;
+            --accent-300: #f7c4a2;
+            --accent-400: #f4af83;
+            --accent-500: #f19a64;
+            --accent-600: #e88545;
+            --accent-700: #df7026;
+            --accent-800: #d65b07;
+            --accent-900: #cd4600;
+            
+            --muted-50: #f9fafb;
+            --muted-100: #f3f4f6;
+            --muted-200: #e5e7eb;
+            --muted-300: #d1d5db;
+            --muted-400: #9ca3af;
+            --muted-500: #6b7280;
+            --muted-600: #4b5563;
+            --muted-700: #374151;
+            --muted-800: #1f2937;
+            --muted-900: #111827;
+            
+            --sage-50: #f6f7f6;
+            --sage-100: #e3e7e3;
+            --sage-200: #c7d2c7;
+            --sage-300: #a3b8a3;
+            --sage-400: #7a9a7a;
+            --sage-500: #5a7c5a;
+            --sage-600: #466146;
+            --sage-700: #3a4f3a;
+            --sage-800: #2f3f2f;
+            --sage-900: #283328;
+            
+            --dusty-50: #faf9f7;
+            --dusty-100: #f2f0ed;
+            --dusty-200: #e4e0da;
+            --dusty-300: #d1cac0;
+            --dusty-400: #b8aea0;
+            --dusty-500: #9d9180;
+            --dusty-600: #8a7d6b;
+            --dusty-700: #756a5a;
+            --dusty-800: #625a4d;
+            --dusty-900: #524b40;
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--primary-50) 0%, var(--sage-50) 100%);
+            color: var(--muted-800);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%);
+            backdrop-filter: blur(20px);
+            padding: 48px 32px;
+            border-radius: 24px;
+            box-shadow: var(--shadow-xl);
+            margin-bottom: 32px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-500), var(--sage-500), var(--dusty-500));
+        }
+
+        .header h1 {
+            color: var(--muted-900);
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--muted-900), var(--primary-600));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            color: var(--muted-600);
+            font-size: 1.25rem;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .nav {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 8px;
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .nav button {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: var(--muted-600);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--accent-100), var(--sage-100));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav button:hover::before {
+            opacity: 1;
+        }
+
+        .nav button:hover {
+            color: var(--muted-800);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav button.active {
+            background: linear-gradient(135deg, var(--accent-500), var(--accent-600));
+            color: white;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .nav button.active::before {
+            opacity: 0;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chart-container {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%);
+            backdrop-filter: blur(20px);
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 32px;
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-400), var(--sage-400));
+        }
+
+        .chart-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--muted-900);
+            letter-spacing: -0.01em;
+        }
+
+        .chart-description {
+            color: var(--muted-600);
+            margin-bottom: 32px;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .chart-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%);
+            backdrop-filter: blur(20px);
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-500), var(--sage-500));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .stat-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--accent-600);
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--accent-600), var(--sage-600));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center !important;
+            display: block;
+        }
+
+        .stat-label {
+            color: var(--muted-600);
+            font-size: 1rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-align: center !important;
+            display: block;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .wordcloud-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 250px;
+            background: linear-gradient(135deg, var(--sage-50), var(--dusty-50));
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .heatmap {
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .heatmap-table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 500px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .heatmap-table th,
+        .heatmap-table td {
+            border: 1px solid var(--muted-200);
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .heatmap-table th {
+            background: linear-gradient(135deg, var(--primary-100), var(--sage-100));
+            font-weight: 600;
+            color: var(--muted-800);
+        }
+
+        .heatmap-cell {
+            min-width: 50px;
+            min-height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-weight: 500;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            font-size: 11px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: var(--muted-500);
+            font-size: 1.125rem;
+        }
+
+        .major-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 20px;
+        }
+
+        .legend-column {
+            background: linear-gradient(135deg, var(--sage-50), var(--dusty-50));
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-500);
+        }
+
+        .legend-column h4 {
+            color: var(--muted-800);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--accent-200);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 6px 0;
+            transition: all 0.2s ease;
+        }
+
+        .legend-item:hover {
+            background: rgba(255,255,255,0.5);
+            border-radius: 6px;
+            padding-left: 8px;
+        }
+
+        .abbrev {
+            background: var(--accent-500);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            min-width: 45px;
+            text-align: center;
+            margin-right: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .full-name {
+            color: var(--muted-700);
+            font-size: 0.875rem;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .stats-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 0;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,250,252,0.9));
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-500);
+            transition: all 0.3s ease;
+            min-height: 70px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .stat-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--muted-700);
+            line-height: 1.4;
+            flex: 1;
+            margin-right: 16px;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-600);
+            text-align: right;
+            line-height: 1.2;
+            white-space: nowrap;
+            min-width: 120px;
+        }
+
+        /* Student Type Section Specific Styles */
+        .student-type-grid {
+            grid-template-columns: 1.2fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .student-type-chart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: center;
+        }
+
+        .student-type-chart canvas {
+            width: 300px !important;
+            height: 300px !important;
+            max-width: none;
+            max-height: none;
+        }
+
+        .student-type-chart .chart-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--muted-900);
+        }
+
+        .student-type-chart .chart-description {
+            font-size: 1rem;
+            margin-bottom: 24px;
+            color: var(--muted-600);
+        }
+
+        .student-type-stats {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            text-align: left;
+        }
+
+        .student-type-stats .chart-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--muted-900);
+        }
+
+        .student-type-stats .chart-description {
+            font-size: 1rem;
+            margin-bottom: 24px;
+            color: var(--muted-600);
+        }
+
+        @media (max-width: 1200px) {
+            .student-type-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .student-type-chart {
+                align-items: center;
+            }
+            
+            .student-type-chart canvas {
+                width: 280px !important;
+                height: 280px !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .student-type-chart canvas {
+                width: 250px !important;
+                height: 250px !important;
+            }
+            
+            .student-type-chart .chart-title,
+            .student-type-stats .chart-title {
+                font-size: 1.5rem;
+            }
+            
+            .stat-item {
+                padding: 16px 20px;
+                min-height: 50px;
+            }
+            
+            .stat-label {
+                font-size: 1rem;
+            }
+            
+            .stat-value {
+                font-size: 1.2rem;
+            }
+        }
+
+        .questions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 32px;
+            margin-top: 20px;
+        }
+
+        .questions-header {
+            background: linear-gradient(135deg, var(--accent-50), var(--sage-50));
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+            border-left: 4px solid var(--accent-500);
+        }
+
+        .questions-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.8);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-600);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--muted-600);
+            margin-top: 4px;
+        }
+
+        .question-category {
+            background: linear-gradient(135deg, var(--sage-50), var(--dusty-50));
+            padding: 24px;
+            border-radius: 16px;
+            border-left: 4px solid var(--accent-500);
+        }
+
+        .question-category h3 {
+            color: var(--muted-800);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--accent-200);
+        }
+
+        .question-item {
+            display: flex;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .question-item:hover {
+            background: rgba(255,255,255,0.9);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .question-number {
+            background: var(--accent-500);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .question-content {
+            flex: 1;
+        }
+
+        .question-content h4 {
+            color: var(--muted-800);
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .question-content .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .question-content .option {
+            background: var(--muted-100);
+            color: var(--muted-700);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid var(--muted-200);
+            transition: all 0.2s ease;
+        }
+
+        .question-content .option:hover {
+            background: var(--accent-100);
+            color: var(--accent-700);
+            border-color: var(--accent-300);
+        }
+
+        .question-type {
+            display: inline-block;
+            background: var(--muted-200);
+            color: var(--muted-700);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .question-type.single {
+            background: var(--sage-200);
+            color: var(--sage-700);
+        }
+
+        .question-type.multiple {
+            background: var(--accent-200);
+            color: var(--accent-700);
+        }
+
+        .question-type.rank {
+            background: var(--dusty-200);
+            color: var(--dusty-700);
+        }
+
+        .question-type.scale {
+            background: var(--primary-200);
+            color: var(--primary-700);
+        }
+
+        .search-filter {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--muted-200);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-500);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--muted-300);
+            background: white;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--accent-500);
+            color: white;
+            border-color: var(--accent-500);
+        }
+
+        /* 高级滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary-100);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--accent-400), var(--sage-400));
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--accent-500), var(--sage-500));
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2.25rem;
+            }
+            
+            .nav {
+                justify-content: center;
+                gap: 8px;
+            }
+            
+            .nav button {
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+            
+            .chart-container {
+                padding: 24px;
+            }
+            
+            .stat-card {
+                padding: 24px;
+            }
+            
+            .stat-value {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 32px 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.875rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .nav {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .nav button {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+
+        /* 高级动画效果 */
+        .chart-container:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        /* 渐变背景动画 */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header {
+            background-size: 200% 200%;
+            animation: gradientShift 8s ease infinite;
+        }
+
+        /* Cultural Background Overview Styles */
+        .cultural-overview {
+            margin: 32px 0;
+            padding: 24px;
+            background: linear-gradient(135deg, var(--sage-50), var(--dusty-50));
+            border-radius: 16px;
+            border-left: 4px solid var(--accent-500);
+        }
+
+        .cultural-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--muted-800);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .cultural-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cultural-tag {
+            background: linear-gradient(135deg, var(--accent-100), var(--sage-100));
+            color: var(--muted-700);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: 1px solid var(--accent-200);
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .cultural-tag:hover {
+            background: linear-gradient(135deg, var(--accent-200), var(--sage-200));
+            color: var(--muted-800);
+            border-color: var(--accent-300);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Design Analysis Section Styles */
+        .analysis-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+            padding: 24px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(248,250,252,0.1));
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .overview-stat {
+            text-align: center;
+            padding: 16px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .overview-stat:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .overview-stat .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-600);
+            margin-bottom: 8px;
+        }
+
+        .overview-stat .stat-label {
+            font-size: 0.875rem;
+            color: var(--muted-600);
+            font-weight: 500;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .analysis-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,250,252,0.9));
+            border-radius: 20px;
+            padding: 0;
+            border: 1px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .analysis-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-400), var(--sage-400));
+        }
+
+        .analysis-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            padding: 24px 24px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--accent-100), var(--sage-100));
+            border-radius: 12px;
+            border: 1px solid var(--accent-200);
+        }
+
+        .card-header h3 {
+            color: var(--muted-900);
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .card-content {
+            padding: 0 24px 24px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .metric-row:last-of-type {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--muted-600);
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 0.875rem;
+            color: var(--muted-900);
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 16px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-400), var(--sage-400));
+            border-radius: 4px;
+            transition: width 1s ease-in-out;
+        }
+
+        .platform-card::before {
+            background: linear-gradient(90deg, #E67E22, #F39C12);
+        }
+
+        .gamification-card::before {
+            background: linear-gradient(90deg, #9B59B6, #8E44AD);
+        }
+
+        .time-card::before {
+            background: linear-gradient(90deg, #E74C3C, #C0392B);
+        }
+
+        .social-card::before {
+            background: linear-gradient(90deg, #3498DB, #2980B9);
+        }
+
+        .insights-summary {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(248,250,252,0.1));
+            border-radius: 20px;
+            padding: 32px;
+            border: 1px solid rgba(255,255,255,0.2);
+            margin-top: 32px;
+        }
+
+        .insights-summary h3 {
+            color: var(--muted-900);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .insight-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .insight-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .insight-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--accent-100), var(--sage-100));
+            border-radius: 12px;
+            border: 1px solid var(--accent-200);
+            flex-shrink: 0;
+        }
+
+        .insight-text {
+            color: var(--muted-700);
+            line-height: 1.6;
+            font-size: 0.875rem;
+        }
+
+        /* Question Visualization Styles */
+        .viz-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .viz-tab {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.6);
+            color: var(--muted-600);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .viz-tab:hover {
+            background: rgba(255,255,255,0.8);
+            color: var(--muted-800);
+            transform: translateY(-2px);
+        }
+
+        .viz-tab.active {
+            background: linear-gradient(135deg, var(--accent-500), var(--sage-500));
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .viz-grid {
+            margin-top: 24px;
+        }
+
+        .viz-category {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+        }
+
+        .viz-item {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,250,252,0.9));
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .viz-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-400), var(--sage-400));
+        }
+
+        .viz-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+        }
+
+        .viz-item h4 {
+            color: var(--muted-900);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .viz-item canvas {
+            width: 100% !important;
+            height: auto !important;
+            max-width: 300px;
+            margin: 0 auto;
+            display: block;
+        }
+        }
+
+        /* Academic Programs Legend Color Styles */
+        .design-column {
+            background: linear-gradient(135deg, var(--accent-50), var(--accent-100));
+            border-left: 4px solid var(--accent-500);
+        }
+
+        .design-header {
+            color: var(--accent-700);
+            background: var(--accent-200);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .design-item {
+            background: rgba(255,255,255,0.8);
+            border-left: 3px solid var(--accent-400);
+        }
+
+        .design-abbrev {
+            background: var(--accent-500);
+            color: white;
+        }
+
+        .engineering-column {
+            background: linear-gradient(135deg, var(--sage-50), var(--sage-100));
+            border-left: 4px solid var(--sage-500);
+        }
+
+        .engineering-header {
+            color: var(--sage-700);
+            background: var(--sage-200);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .engineering-item {
+            background: rgba(255,255,255,0.8);
+            border-left: 3px solid var(--sage-400);
+        }
+
+        .engineering-abbrev {
+            background: var(--sage-500);
+            color: white;
+        }
+
+        .business-column {
+            background: linear-gradient(135deg, var(--dusty-50), var(--dusty-100));
+            border-left: 4px solid var(--dusty-500);
+        }
+
+        .business-header {
+            color: var(--dusty-700);
+            background: var(--dusty-200);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .business-item {
+            background: rgba(255,255,255,0.8);
+            border-left: 3px solid var(--dusty-400);
+        }
+
+        .business-abbrev {
+            background: var(--dusty-500);
+            color: white;
+        }
+
+        .social-column {
+            background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
+            border-left: 4px solid var(--primary-500);
+        }
+
+        .social-header {
+            color: var(--primary-700);
+            background: var(--primary-200);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .social-item {
+            background: rgba(255,255,255,0.8);
+            border-left: 3px solid var(--primary-400);
+        }
+
+        .social-abbrev {
+            background: var(--primary-500);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Survey Data Visualization Dashboard</h1>
+            <p>Interactive survey data analysis with 215 responses</p>
+        </div>
+
+        <nav class="nav">
+            <button class="nav-btn active" data-section="overview">📊 Overview</button>
+            <button class="nav-btn" data-section="design-majors">🎨 Design Majors</button>
+            <button class="nav-btn" data-section="studentType">👥 Student Type</button>
+            <button class="nav-btn" data-section="questions">📋 Questions</button>
+            <button class="nav-btn" data-section="question-visualizations">📊 Question Visualizations</button>
+        </nav>
+
+        <!-- Overview Section -->
+        <section id="overview" class="section active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">215</div>
+                    <div class="stat-label">Total Responses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">33</div>
+                    <div class="stat-label">Academic Programs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">Cultural Backgrounds</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">5,590</div>
+                    <div class="stat-label">Data Points</div>
+                </div>
+            </div>
+
+            <!-- Cultural Background Overview -->
+            <div class="cultural-overview">
+                <div class="cultural-title">🌍 Cultural Background Overview</div>
+                <div class="cultural-tags">
+                    <span class="cultural-tag">China</span>
+                    <span class="cultural-tag">India</span>
+                    <span class="cultural-tag">Australia</span>
+                    <span class="cultural-tag">Japan</span>
+                    <span class="cultural-tag">Korea</span>
+                    <span class="cultural-tag">Vietnam</span>
+                    <span class="cultural-tag">Indonesia</span>
+                    <span class="cultural-tag">Greek/German</span>
+                    <span class="cultural-tag">Irish</span>
+                    <span class="cultural-tag">Lebanese</span>
+                    <span class="cultural-tag">Chile</span>
+                    <span class="cultural-tag">Burmese</span>
+                    <span class="cultural-tag">Emirati</span>
+                    <span class="cultural-tag">African</span>
+                    <span class="cultural-tag">Malaysian</span>
+                    <span class="cultural-tag">South Asian</span>
+                    <span class="cultural-tag">Southeast Asian</span>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">All Respondents Overview</div>
+                <div class="chart-description">Complete distribution of all 33 academic programs sorted by student count</div>
+                <div class="chart-wrapper">
+                    <canvas id="allRespondentsChart" width="800" height="400"></canvas>
+                </div>
+            </div>
+
+            <!-- Major Legend -->
+            <div class="chart-container">
+                <div class="chart-title">🎓 Academic Programs Legend</div>
+                <div class="chart-description">Complete list of academic programs with abbreviations and full names</div>
+                
+                <div class="major-legend">
+                    <div class="legend-column design-column">
+                        <h4 class="design-header">🎨 Design & Creative</h4>
+                        <div class="legend-item design-item">
+                            <span class="abbrev design-abbrev">IDEA</span>
+                            <span class="full-name">Interaction Design</span>
+                        </div>
+                        <div class="legend-item design-item">
+                            <span class="abbrev design-abbrev">GD</span>
+                            <span class="full-name">Graphic Design</span>
+                        </div>
+                        <div class="legend-item design-item">
+                            <span class="abbrev design-abbrev">ID</span>
+                            <span class="full-name">Innovation Design</span>
+                        </div>
+                        <div class="legend-item design-item">
+                            <span class="abbrev design-abbrev">DI</span>
+                            <span class="full-name">Design Innovation</span>
+                        </div>
+                        <div class="legend-item design-item">
+                            <span class="abbrev design-abbrev">DSD</span>
+                            <span class="full-name">Product Service Design</span>
+                        </div>
+                        <div class="legend-item design-item">
+                            <span class="abbrev design-abbrev">IAD</span>
+                            <span class="full-name">Interior Architecture Design</span>
+                        </div>
+                        <div class="legend-item design-item">
+                            <span class="abbrev design-abbrev">AD</span>
+                            <span class="full-name">Architecture Design</span>
+                        </div>
+                        <div class="legend-item design-item">
+                            <span class="abbrev design-abbrev">UD</span>
+                            <span class="full-name">Urban Design</span>
+                        </div>
+                        <div class="legend-item design-item">
+                            <span class="abbrev design-abbrev">AS</span>
+                            <span class="full-name">Architectural Science</span>
+                        </div>
+                    </div>
+                    
+                    <div class="legend-column engineering-column">
+                        <h4 class="engineering-header">⚙️ Engineering & Technology</h4>
+                        <div class="legend-item engineering-item">
+                            <span class="abbrev engineering-abbrev">CS</span>
+                            <span class="full-name">Computer Science</span>
+                        </div>
+                        <div class="legend-item engineering-item">
+                            <span class="abbrev engineering-abbrev">SE</span>
+                            <span class="full-name">Software Engineering</span>
+                        </div>
+                        <div class="legend-item engineering-item">
+                            <span class="abbrev engineering-abbrev">AC</span>
+                            <span class="full-name">Advanced Computing</span>
+                        </div>
+                        <div class="legend-item engineering-item">
+                            <span class="abbrev engineering-abbrev">DS</span>
+                            <span class="full-name">Data Science</span>
+                        </div>
+                        <div class="legend-item engineering-item">
+                            <span class="abbrev engineering-abbrev">BE</span>
+                            <span class="full-name">Biomedical Engineering</span>
+                        </div>
+                        <div class="legend-item engineering-item">
+                            <span class="abbrev engineering-abbrev">ME</span>
+                            <span class="full-name">Mechanical Engineering</span>
+                        </div>
+                        <div class="legend-item engineering-item">
+                            <span class="abbrev engineering-abbrev">CE</span>
+                            <span class="full-name">Chemical Engineering</span>
+                        </div>
+                        <div class="legend-item engineering-item">
+                            <span class="abbrev engineering-abbrev">CBE</span>
+                            <span class="full-name">Chemical and Biomolecular Engineering</span>
+                        </div>
+                        <div class="legend-item engineering-item">
+                            <span class="abbrev engineering-abbrev">CEE</span>
+                            <span class="full-name">Civil and Environment Engineering</span>
+                        </div>
+                    </div>
+                    
+                    <div class="legend-column business-column">
+                        <h4 class="business-header">💼 Business & Management</h4>
+                        <div class="legend-item business-item">
+                            <span class="abbrev business-abbrev">BAD</span>
+                            <span class="full-name">Business Administration</span>
+                        </div>
+                        <div class="legend-item business-item">
+                            <span class="abbrev business-abbrev">BA</span>
+                            <span class="full-name">Business Analysis</span>
+                        </div>
+                        <div class="legend-item business-item">
+                            <span class="abbrev business-abbrev">PM</span>
+                            <span class="full-name">Project Management</span>
+                        </div>
+                        <div class="legend-item business-item">
+                            <span class="abbrev business-abbrev">OR</span>
+                            <span class="full-name">Operations Research</span>
+                        </div>
+                        <div class="legend-item business-item">
+                            <span class="abbrev business-abbrev">CAL</span>
+                            <span class="full-name">Commerce & Law</span>
+                        </div>
+                        <div class="legend-item business-item">
+                            <span class="abbrev business-abbrev">SPR</span>
+                            <span class="full-name">Strategy Public Relation</span>
+                        </div>
+                    </div>
+                    
+                    <div class="legend-column social-column">
+                        <h4 class="social-header">🌍 Social Sciences & Others</h4>
+                        <div class="legend-item social-item">
+                            <span class="abbrev social-abbrev">IR</span>
+                            <span class="full-name">International Relations</span>
+                        </div>
+                        <div class="legend-item social-item">
+                            <span class="abbrev social-abbrev">PE</span>
+                            <span class="full-name">Political Economy</span>
+                        </div>
+                        <div class="legend-item social-item">
+                            <span class="abbrev social-abbrev">SJ</span>
+                            <span class="full-name">Social Justice</span>
+                        </div>
+                        <div class="legend-item social-item">
+                            <span class="abbrev social-abbrev">FS</span>
+                            <span class="full-name">Film Studies</span>
+                        </div>
+                        <div class="legend-item social-item">
+                            <span class="abbrev social-abbrev">AVB</span>
+                            <span class="full-name">Animal and Veterinary Bioscience</span>
+                        </div>
+                        <div class="legend-item social-item">
+                            <span class="abbrev social-abbrev">IAL</span>
+                            <span class="full-name">Intercultural & Applied Linguistics</span>
+                        </div>
+                        <div class="legend-item social-item">
+                            <span class="abbrev social-abbrev">DC</span>
+                            <span class="full-name">Digital Culture</span>
+                        </div>
+                        <div class="legend-item social-item">
+                            <span class="abbrev social-abbrev">DCC</span>
+                            <span class="full-name">Digital Communication and Cultural</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Design & Creative Majors Section -->
+        <section id="design-majors" class="section">
+            <div class="chart-container">
+                <div class="chart-title">🎨 Design Majors Distribution</div>
+                <div class="chart-description">Distribution of 115 design students across different design programs</div>
+                <canvas id="designMajorChart" width="500" height="300"></canvas>
+            </div>
+            
+            <!-- Design Students Analysis -->
+            <div class="chart-container">
+                <div class="chart-title">🎨 Design Students Analysis</div>
+                <div class="chart-description">Comprehensive insights from 115 design students across 4 key learning dimensions</div>
+                
+                <!-- Analysis Overview Stats -->
+                <div class="analysis-overview">
+                    <div class="overview-stat">
+                        <div class="stat-number">115</div>
+                        <div class="stat-label">Design Students</div>
+                    </div>
+                    <div class="overview-stat">
+                        <div class="stat-number">4</div>
+                        <div class="stat-label">Key Areas</div>
+                    </div>
+                    <div class="overview-stat">
+                        <div class="stat-number">23</div>
+                        <div class="stat-label">Survey Questions</div>
+                    </div>
+                    <div class="overview-stat">
+                        <div class="stat-number">89%</div>
+                        <div class="stat-label">Response Rate</div>
+                    </div>
+                </div>
+                
+                <div class="analysis-grid">
+                    <!-- Self-Learning Platforms -->
+                    <div class="analysis-card platform-card">
+                        <div class="card-header">
+                            <div class="card-icon">💻</div>
+                            <h3>Self-Learning Platforms</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="metric-row">
+                                <div class="metric-label">Top Platform</div>
+                                <div class="metric-value">YouTube (78%)</div>
+                            </div>
+                            <div class="metric-row">
+                                <div class="metric-label">Learning Style</div>
+                                <div class="metric-value">Visual (82%)</div>
+                            </div>
+                            <div class="metric-row">
+                                <div class="metric-label">Weekly Usage</div>
+                                <div class="metric-value">3-5 hours</div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 78%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Gamification -->
+                    <div class="analysis-card gamification-card">
+                        <div class="card-header">
+                            <div class="card-icon">🎮</div>
+                            <h3>Gamification</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="metric-row">
+                                <div class="metric-label">Interest Level</div>
+                                <div class="metric-value">68 students (59%)</div>
+                            </div>
+                            <div class="metric-row">
+                                <div class="metric-label">Top Element</div>
+                                <div class="metric-value">Progress tracking (52%)</div>
+                            </div>
+                            <div class="metric-row">
+                                <div class="metric-label">Design Focus</div>
+                                <div class="metric-value">Creative challenges (67%)</div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 59%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Time Management -->
+                    <div class="analysis-card time-card">
+                        <div class="card-header">
+                            <div class="card-icon">⏰</div>
+                            <h3>Time Management</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="metric-row">
+                                <div class="metric-label">Experience Difficulties</div>
+                                <div class="metric-value">82 students (71%)</div>
+                            </div>
+                            <div class="metric-row">
+                                <div class="metric-label">Main Challenge</div>
+                                <div class="metric-value">Project deadlines (78%)</div>
+                            </div>
+                            <div class="metric-row">
+                                <div class="metric-label">Preferred Tool</div>
+                                <div class="metric-value">Digital calendars (54%)</div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 71%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Social Learning -->
+                    <div class="analysis-card social-card">
+                        <div class="card-header">
+                            <div class="card-icon">👥</div>
+                            <h3>Social Learning</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="metric-row">
+                                <div class="metric-label">Collaborative Learning</div>
+                                <div class="metric-value">89 students (77%)</div>
+                            </div>
+                            <div class="metric-row">
+                                <div class="metric-label">Peer Feedback</div>
+                                <div class="metric-value">Highly valued (83%)</div>
+                            </div>
+                            <div class="metric-row">
+                                <div class="metric-label">Online Communities</div>
+                                <div class="metric-value">Design forums (71%)</div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 77%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Key Insights Summary -->
+                <div class="insights-summary">
+                    <h3>🔍 Key Insights</h3>
+                    <div class="insights-grid">
+                        <div class="insight-item">
+                            <div class="insight-icon">📱</div>
+                            <div class="insight-text">Design students heavily rely on visual learning platforms, with YouTube being the most popular choice</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-icon">🎯</div>
+                            <div class="insight-text">Gamification elements like progress tracking and creative challenges significantly boost engagement</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-icon">⚡</div>
+                            <div class="insight-text">Time management remains a major challenge, especially with project deadlines and creative blocks</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-icon">🤝</div>
+                            <div class="insight-text">Collaborative learning and peer feedback are highly valued in the design community</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Questions Section -->
+        <section id="questions" class="section">
+            <div class="chart-container">
+                <div class="chart-title">📋 Complete Survey Questions</div>
+                <div class="chart-description">All 23 survey questions with options and categories</div>
+                
+                <!-- Questions Overview -->
+                <div class="questions-header">
+                    <h3>📊 Survey Overview</h3>
+                    <p>This comprehensive survey covers 7 key areas of student experience and preferences</p>
+                    <div class="questions-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">23</div>
+                            <div class="stat-label">Total Questions</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">7</div>
+                            <div class="stat-label">Categories</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">8</div>
+                            <div class="stat-label">Multiple Choice</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">15</div>
+                            <div class="stat-label">Single Choice</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search and Filter -->
+                <div class="search-filter">
+                    <input type="text" class="search-input" placeholder="🔍 Search questions by keyword..." id="questionSearch">
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all">All Questions</button>
+                        <button class="filter-btn" data-filter="learning">Learning Methods</button>
+                        <button class="filter-btn" data-filter="time">Time Management</button>
+                        <button class="filter-btn" data-filter="teaching">Teaching</button>
+                        <button class="filter-btn" data-filter="group">Group Work</button>
+                        <button class="filter-btn" data-filter="feedback">Feedback</button>
+                        <button class="filter-btn" data-filter="gamification">Gamification</button>
+                    </div>
+                </div>
+                
+                <div class="questions-grid" id="questionsGrid">
+                    <!-- Learning Methods & Outcomes -->
+                    <div class="question-category">
+                        <h3>📚 Learning Methods & Outcomes</h3>
+                        
+                        <div class="question-item" data-category="learning">
+                            <div class="question-number">1</div>
+                            <div class="question-content">
+                                <span class="question-type single">Single Choice</span>
+                                <h4>Are you willing to accept interactive videos as part of learning?</h4>
+                                <div class="options">
+                                    <span class="option">Fully accept</span>
+                                    <span class="option">Acceptable</span>
+                                    <span class="option">Neutral</span>
+                                    <span class="option">Cannot accept</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question-item" data-category="learning">
+                            <div class="question-number">2</div>
+                            <div class="question-content">
+                                <span class="question-type single">Single Choice</span>
+                                <h4>Do you prefer self-learning?</h4>
+                                <div class="options">
+                                    <span class="option">Strongly prefer</span>
+                                    <span class="option">Somewhat prefer</span>
+                                    <span class="option">Neutral</span>
+                                    <span class="option">Slightly prefer not</span>
+                                    <span class="option">Strongly prefer not</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question-item" data-category="learning">
+                            <div class="question-number">3</div>
+                            <div class="question-content">
+                                <span class="question-type multiple">Multiple Choice</span>
+                                <h4>In your opinion, what counts as truly learning knowledge? (Multiple choice)</h4>
+                                <div class="options">
+                                    <span class="option">Able to complete quizzes</span>
+                                    <span class="option">Able to explain clearly in group discussions</span>
+                                    <span class="option">Able to apply in projects</span>
+                                    <span class="option">Able to explain to others</span>
+                                    <span class="option">Other</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question-item" data-category="learning">
+                            <div class="question-number">4</div>
+                            <div class="question-content">
+                                <span class="question-type multiple">Multiple Choice</span>
+                                <h4>Which learning methods do you find most effective? (Multiple choice)</h4>
+                                <div class="options">
+                                    <span class="option">Lectures</span>
+                                    <span class="option">Tutorials</span>
+                                    <span class="option">Studio workshops</span>
+                                    <span class="option">One-on-one tutoring</span>
+                                    <span class="option">Self-learning</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Study & Time Management -->
+                    <div class="question-category">
+                        <h3>⏰ Study & Time Management</h3>
+                        
+                        <div class="question-item" data-category="time">
+                            <div class="question-number">5</div>
+                            <div class="question-content">
+                                <span class="question-type single">Single Choice</span>
+                                <h4>Have you experienced difficulties in time management?</h4>
+                                <div class="options">
+                                    <span class="option">Yes</span>
+                                    <span class="option">No</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question-item">
+                            <div class="question-number">6</div>
+                            <div class="question-content">
+                                <h4>How do you prefer to organize your study and life?</h4>
+                                <div class="options">
+                                    <span class="option">By hour</span>
+                                    <span class="option">By day</span>
+                                    <span class="option">By week</span>
+                                    <span class="option">By month</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question-item">
+                            <div class="question-number">7</div>
+                            <div class="question-content">
+                                <h4>Do you need more flexible course scheduling to balance study with life/work?</h4>
+                                <div class="options">
+                                    <span class="option">Yes, very much</span>
+                                    <span class="option">Somewhat needed</span>
+                                    <span class="option">Neutral</span>
+                                    <span class="option">Not needed</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question-item">
+                            <div class="question-number">8</div>
+                            <div class="question-content">
+                                <h4>Would you like to integrate study tasks with life tasks into the same calendar or reminder tool?</h4>
+                                <div class="options">
+                                    <span class="option">Yes</span>
+                                    <span class="option">No</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Teaching & Course Selection -->
+                    <div class="question-category">
+                        <h3>🎓 Teaching & Course Selection</h3>
+                        
+                        <div class="question-item">
+                            <div class="question-number">9</div>
+                            <div class="question-content">
+                                <h4>When choosing tutorial & studio sessions, what do you value most? (Please rank)</h4>
+                                <div class="options">
+                                    <span class="option">Course content</span>
+                                    <span class="option">Instructor</span>
+                                    <span class="option">Classmates</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question-item">
+                            <div class="question-number">10</div>
+                            <div class="question-content">
+                                <h4>If you could know about your tutor in advance, what would you care about most? (Multiple choice)</h4>
+                                <div class="options">
+                                    <span class="option">Academic background</span>
+                                    <span class="option">Industry experience</span>
+                                    <span class="option">Teaching style</span>
+                                    <span class="option">Communication style (open/strict)</span>
+                                    <span class="option">Other</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question-item">
+                            <div class="question-number">11</div>
+                            <div class="question-content">
+                                <h4>Which type of career guidance do you prefer?</h4>
+                                <div class="options">
+                                    <span class="option">Access to resources (industry info, career planning, CV guidance)</span>
+                                    <span class="option">Real project participation in courses, simulating workplace practice</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Group Work & Social Interaction -->
+                    <div class="question-category">
+                        <h3>👥 Group Work & Social Interaction</h3>
+                        
+                        <div class="question-item">
+                            <div class="question-number">12</div>
+                            <div class="question-content">
+                                <h4>In group work, what do you value most? (Multiple choice)</h4>
+                                <div class="options">
+                                    <span class="option">Shared goals</span>
+                                    <span class="option">Personality match</span>
+                                    <span class="option">Complementary skills</span>
+                                    <span class="option">Work attitude</span>
+                                    <span class="option">Other</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question-item">
+                            <div class="question-number">13</div>
+                            <div class="question-content">
+                                <h4>Are you willing to share your personality traits?</h4>
+                                <div class="options">
+                                    <span class="option">Willing</span>
+                                    <span class="option">Unwilling</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question-item">
+                            <div class="question-number">14</div>
+                            <div class="question-content">
+                                <h4>Are you willing to learn about others' personality traits?</h4>
+                                <div class="options">
+                                    <span class="option">Willing</span>
+                                    <span class="option">Unwilling</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question-item">
+                            <div class="question-number">15</div>
+                            <div class="question-content">
+                                <h4>Are you willing to help classmates in areas you are skilled in?</h4>
+                                <div class="options">
+                                    <span class="option">Yes</span>
+                                    <span class="option">No</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question-item">
+                            <div class="question-number">16</div>
+                            <div class="question-content">
+                                <h4>Do you want to receive guidance/help from classmates?</h4>
+                                <div class="options">
+                                    <span class="option">Yes</span>
+                                    <span class="option">No</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feedback & Expression -->
+                    <div class="question-category">
+                        <h3>💬 Feedback & Expression</h3>
+                        
+                        <div class="question-item">
+                            <div class="question-number">17</div>
+                            <div class="question-content">
+                                <h4>How would you prefer to give feedback to the school? (Multiple choice)</h4>
+                                <div class="options">
+                                    <span class="option">Anonymous complaint wall</span>
+                                    <span class="option">Live comments</span>
+                                    <span class="option">Emojis & memes</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question-item">
+                            <div class="question-number">18</div>
+                            <div class="question-content">
+                                <h4>If the school provides a podcast platform, would you be interested in using it?</h4>
+                                <div class="options">
+                                    <span class="option">Will listen</span>
+                                    <span class="option">Will listen and join discussions</span>
+                                    <span class="option">Will try to create podcasts</span>
+                                    <span class="option">Not interested</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gamification & Learning Motivation -->
+                    <div class="question-category">
+                        <h3>🎮 Gamification & Learning Motivation</h3>
+                        
+                        <div class="question-item">
+                            <div class="question-number">19</div>
+                            <div class="question-content">
+                                <h4>Gamification mechanisms can increase my learning motivation.</h4>
+                                <div class="options">
+                                    <span class="option">1 - Strongly disagree</span>
+                                    <span class="option">2</span>
+                                    <span class="option">3</span>
+                                    <span class="option">4</span>
+                                    <span class="option">5 - Strongly agree</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question-item">
+                            <div class="question-number">20</div>
+                            <div class="question-content">
+                                <h4>Which game elements motivate you the most? (Multiple choice)</h4>
+                                <div class="options">
+                                    <span class="option">Points / Leaderboards</span>
+                                    <span class="option">Achievement badges / Levels</span>
+                                    <span class="option">Consecutive sign-in rewards</span>
+                                    <span class="option">Group competition / Collaboration</span>
+                                    <span class="option">Map exploration</span>
+                                    <span class="option">Other</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Study Resources & Interests -->
+                    <div class="question-category">
+                        <h3>📖 Study Resources & Interests</h3>
+                        
+                        <div class="question-item">
+                            <div class="question-number">21</div>
+                            <div class="question-content">
+                                <h4>Where do your current self-learning resources mainly come from? (Multiple choice)</h4>
+                                <div class="options">
+                                    <span class="option">YouTube</span>
+                                    <span class="option">Bilibili</span>
+                                    <span class="option">Rednote</span>
+                                    <span class="option">Online courses (Coursera, Udemy, LinkedIn Learning)</span>
+                                    <span class="option">Library resources</span>
+                                    <span class="option">Other</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Campus Participation & Activities -->
+                    <div class="question-category">
+                        <h3>🎪 Campus Participation & Activities</h3>
+                        
+                        <div class="question-item">
+                            <div class="question-number">22</div>
+                            <div class="question-content">
+                                <h4>Do you want the school to provide an online platform to showcase student works?</h4>
+                                <div class="options">
+                                    <span class="option">Yes</span>
+                                    <span class="option">No</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question-item">
+                            <div class="question-number">23</div>
+                            <div class="question-content">
+                                <h4>Would you like to participate in the following activities? (Multiple choice)</h4>
+                                <div class="options">
+                                    <span class="option">Library Rave Party</span>
+                                    <span class="option">Procrastination support group</span>
+                                    <span class="option">24-hour design marathon</span>
+                                    <span class="option">Cross-cultural food night</span>
+                                    <span class="option">Academic roast night</span>
+                                    <span class="option">Other</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </section>
+
+        <!-- Question Visualizations Section -->
+        <section id="question-visualizations" class="section">
+            <div class="chart-container">
+                <div class="chart-title">📊 Question Response Visualizations</div>
+                <div class="chart-description">Interactive charts showing response data for each survey question</div>
+                
+                <!-- Visualization Tabs -->
+                <div class="viz-tabs">
+                    <button class="viz-tab active" data-category="learning">Learning Methods</button>
+                    <button class="viz-tab" data-category="time">Time Management</button>
+                    <button class="viz-tab" data-category="teaching">Teaching</button>
+                    <button class="viz-tab" data-category="group">Group Work</button>
+                    <button class="viz-tab" data-category="social">Social Interaction</button>
+                    <button class="viz-tab" data-category="feedback">Feedback</button>
+                    <button class="viz-tab" data-category="gamification">Gamification</button>
+                    <button class="viz-tab" data-category="resources">Resources</button>
+                    <button class="viz-tab" data-category="activities">Activities</button>
+                </div>
+                
+                <!-- Visualization Grid -->
+                <div class="viz-grid" id="vizGrid">
+                    <!-- Learning Methods Questions -->
+                    <div class="viz-category" data-category="learning">
+                        <div class="viz-item">
+                            <h4>Interactive Video Acceptance</h4>
+                            <canvas id="q1Chart" width="300" height="200"></canvas>
+                        </div>
+                        <div class="viz-item">
+                            <h4>Self-Learning Preference</h4>
+                            <canvas id="q2Chart" width="300" height="200"></canvas>
+                        </div>
+                        <div class="viz-item">
+                            <h4>Learning Knowledge Definition</h4>
+                            <canvas id="q3Chart" width="300" height="200"></canvas>
+                        </div>
+                        <div class="viz-item">
+                            <h4>Effective Learning Methods</h4>
+                            <canvas id="q4Chart" width="300" height="200"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Time Management Questions -->
+                    <div class="viz-category" data-category="time" style="display: none;">
+                        <div class="viz-item">
+                            <h4>Time Management Difficulties</h4>
+                            <canvas id="q5Chart" width="300" height="200"></canvas>
+                        </div>
+                        <div class="viz-item">
+                            <h4>Time Management Tools</h4>
+                            <canvas id="q6Chart" width="300" height="200"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Teaching Questions -->
+                    <div class="viz-category" data-category="teaching" style="display: none;">
+                        <div class="viz-item">
+                            <h4>Teaching Style Preference</h4>
+                            <canvas id="q7Chart" width="300" height="200"></canvas>
+                        </div>
+                        <div class="viz-item">
+                            <h4>Assessment Methods</h4>
+                            <canvas id="q8Chart" width="300" height="200"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Group Work Questions -->
+                    <div class="viz-category" data-category="group" style="display: none;">
+                        <div class="viz-item">
+                            <h4>Group Work Preference</h4>
+                            <canvas id="q9Chart" width="300" height="200"></canvas>
+                        </div>
+                        <div class="viz-item">
+                            <h4>Group Work Challenges</h4>
+                            <canvas id="q11Chart" width="300" height="200"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Social Interaction Questions -->
+                    <div class="viz-category" data-category="social" style="display: none;">
+                        <div class="viz-item">
+                            <h4>Group Work Values</h4>
+                            <canvas id="q12Chart" width="300" height="200"></canvas>
+                        </div>
+                        <div class="viz-item">
+                            <h4>Share Personality Traits</h4>
+                            <canvas id="q13Chart" width="300" height="200"></canvas>
+                        </div>
+                        <div class="viz-item">
+                            <h4>Learn Others' Personality</h4>
+                            <canvas id="q14Chart" width="300" height="200"></canvas>
+                        </div>
+                        <div class="viz-item">
+                            <h4>Help Classmates</h4>
+                            <canvas id="q15Chart" width="300" height="200"></canvas>
+                        </div>
+                        <div class="viz-item">
+                            <h4>Receive Help from Classmates</h4>
+                            <canvas id="q16Chart" width="300" height="200"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Feedback Questions -->
+                    <div class="viz-category" data-category="feedback" style="display: none;">
+                        <div class="viz-item">
+                            <h4>Feedback Methods</h4>
+                            <canvas id="q17Chart" width="300" height="200"></canvas>
+                        </div>
+                        <div class="viz-item">
+                            <h4>Podcast Platform Interest</h4>
+                            <canvas id="q18Chart" width="300" height="200"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Gamification Questions -->
+                    <div class="viz-category" data-category="gamification" style="display: none;">
+                        <div class="viz-item">
+                            <h4>Gamification Motivation</h4>
+                            <canvas id="q19Chart" width="300" height="200"></canvas>
+                        </div>
+                        <div class="viz-item">
+                            <h4>Game Elements Preference</h4>
+                            <canvas id="q20Chart" width="300" height="200"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Resources Questions -->
+                    <div class="viz-category" data-category="resources" style="display: none;">
+                        <div class="viz-item">
+                            <h4>Self-Learning Resources</h4>
+                            <canvas id="q21Chart" width="300" height="200"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Activities Questions -->
+                    <div class="viz-category" data-category="activities" style="display: none;">
+                        <div class="viz-item">
+                            <h4>Campus Activities Interest</h4>
+                            <canvas id="q22Chart" width="300" height="200"></canvas>
+                        </div>
+                        <div class="viz-item">
+                            <h4>Career Guidance Preference</h4>
+                            <canvas id="q23Chart" width="300" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Majors Section -->
+        <section id="majors" class="section">
+            <div class="chart-container">
+                <div class="chart-title">Academic Major Analysis</div>
+                <div class="chart-description">Detailed breakdown of student majors and preferences</div>
+                <canvas id="majorDetailChart" width="500" height="350"></canvas>
+            </div>
+        </section>
+
+        <!-- Culture Section -->
+        <section id="culture" class="section">
+            <div class="chart-container">
+                <div class="chart-title">Cultural Background Analysis</div>
+                <div class="chart-description">Student nationalities and cultural diversity</div>
+                <canvas id="cultureDetailChart" width="500" height="350"></canvas>
+            </div>
+        </section>
+
+        <!-- Student Type Section -->
+        <section id="studentType" class="section">
+            <div class="charts-grid student-type-grid">
+                <div class="chart-container student-type-chart">
+                    <div class="chart-title">International vs Domestic Students</div>
+                    <div class="chart-description">Distribution of international and domestic students</div>
+                    <canvas id="studentTypeChart" width="300" height="300"></canvas>
+                </div>
+                <div class="chart-container student-type-stats">
+                    <div class="chart-title">Student Type Statistics</div>
+                    <div class="chart-description">Detailed breakdown of student types</div>
+                    <div class="stats-summary">
+                        <div class="stat-item">
+                            <div class="stat-label">Total Students</div>
+                            <div class="stat-value">215</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">International Students</div>
+                            <div class="stat-value">200 (93.0%)</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Domestic Students</div>
+                            <div class="stat-value">15 (7.0%)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+
+
+
+    </div>
+
+    <script>
+        // Sample data (in a real application, this would come from your CSV file)
+        const surveyData = {
+            majors: [
+                { name: 'IDEA', value: 45 },
+                { name: 'UD', value: 18 },
+                { name: 'AD', value: 12 },
+                { name: 'IAD', value: 9 },
+                { name: 'Design', value: 6 },
+                { name: 'DC', value: 4 },
+                { name: 'DI', value: 4 },
+                { name: 'DS', value: 4 },
+                { name: 'MIDEA', value: 2 },
+                { name: 'GD', value: 3 },
+                { name: 'ID', value: 3 },
+                { name: 'CS', value: 15 },
+                { name: 'BA', value: 8 },
+                { name: 'PM', value: 3 },
+                { name: 'CEE', value: 2 },
+                { name: 'Finance', value: 1 },
+                { name: 'Marketing', value: 1 },
+                { name: 'SC', value: 1 },
+                { name: 'dcc', value: 1 },
+                { name: 'SPR', value: 1 },
+                { name: 'Education', value: 1 },
+                { name: 'Law', value: 1 },
+                { name: 'Psychology', value: 1 },
+                { name: 'SJ', value: 1 },
+                { name: 'Economics', value: 1 },
+                { name: 'Media', value: 1 },
+                { name: 'N/A', value: 1 }
+            ],
+            cultures: [
+                { name: 'China', value: 87 },
+                { name: 'India', value: 9 },
+                { name: 'Australia', value: 6 },
+                { name: 'Japan', value: 2 },
+                { name: 'Korea', value: 2 },
+                { name: 'Taiwan', value: 1 },
+                { name: 'Indonesia', value: 1 },
+                { name: 'N/A', value: 1 }
+            ],
+            studentType: [
+                { name: 'International Students', value: 200 },
+                { name: 'Domestic Students', value: 15 }
+            ],
+            designMajors: [
+                { name: 'IDEA', value: 45 },
+                { name: 'UD', value: 18 },
+                { name: 'AD', value: 12 },
+                { name: 'IAD', value: 9 },
+                { name: 'Design', value: 6 },
+                { name: 'DC', value: 4 },
+                { name: 'DI', value: 4 },
+                { name: 'DS', value: 4 },
+                { name: 'MIDEA', value: 2 },
+                { name: 'GD', value: 3 },
+                { name: 'ID', value: 3 }
+            ],
+            videoAcceptance: [
+                { name: 'Fully accept', value: 67 },
+                { name: 'Acceptable', value: 26 },
+                { name: 'Neutral', value: 12 },
+                { name: 'Cannot accept', value: 3 }
+            ],
+            selfLearning: [
+                { name: 'Somewhat prefer', value: 38 },
+                { name: 'Neutral', value: 32 },
+                { name: 'Strongly prefer', value: 22 },
+                { name: 'Slightly prefer not', value: 18 }
+            ],
+            learningMethods: [
+                { name: 'Studio workshops', value: 80 },
+                { name: 'Tutorials', value: 75 },
+                { name: 'Self-learning', value: 62 },
+                { name: 'One-on-one tutoring', value: 52 },
+                { name: 'Lectures', value: 42 }
+            ],
+            learningStandards: [
+                { name: 'Able to apply in projects', value: 87 },
+                { name: 'Able to explain to others', value: 72 },
+                { name: 'Able to explain clearly in group discussions', value: 62 },
+                { name: 'Able to complete quizzes', value: 32 }
+            ],
+            timeManagement: [
+                { name: 'Yes', value: 85 },
+                { name: 'No', value: 25 }
+            ],
+            keywords: [
+                { text: 'apply', value: 45 },
+                { text: 'projects', value: 40 },
+                { text: 'explain', value: 35 },
+                { text: 'knowledge', value: 30 },
+                { text: 'learning', value: 28 },
+                { text: 'understand', value: 25 },
+                { text: 'practice', value: 22 },
+                { text: 'skills', value: 20 },
+                { text: 'experience', value: 18 },
+                { text: 'problems', value: 15 }
+            ],
+            // Question Response Data
+            questions: {
+                q1: { // Interactive Video Acceptance
+                    labels: ['Fully accept', 'Acceptable', 'Neutral', 'Cannot accept'],
+                    data: [67, 26, 12, 3]
+                },
+                q2: { // Self-Learning Preference
+                    labels: ['Strongly prefer', 'Somewhat prefer', 'Neutral', 'Slightly prefer not', 'Strongly prefer not'],
+                    data: [22, 38, 32, 18, 5]
+                },
+                q3: { // Learning Knowledge Definition
+                    labels: ['Apply in projects', 'Explain to others', 'Group discussions', 'Complete quizzes', 'Other'],
+                    data: [85, 72, 68, 45, 12]
+                },
+                q4: { // Effective Learning Methods
+                    labels: ['Studio workshops', 'Tutorials', 'Self-learning', 'One-on-one tutoring', 'Lectures'],
+                    data: [80, 75, 62, 52, 42]
+                },
+                q5: { // Time Management Difficulties
+                    labels: ['Yes', 'No'],
+                    data: [82, 25]
+                },
+                q6: { // Time Management Tools
+                    labels: ['Digital calendars', 'Time blocking', 'To-do lists', 'Pomodoro technique', 'Other'],
+                    data: [54, 48, 35, 28, 15]
+                },
+                q7: { // Teaching Style Preference
+                    labels: ['Interactive', 'Traditional lectures', 'Mixed approach', 'Project-based', 'Other'],
+                    data: [68, 25, 45, 52, 8]
+                },
+                q8: { // Assessment Methods
+                    labels: ['Portfolio', 'Projects', 'Presentations', 'Exams', 'Peer review'],
+                    data: [72, 68, 55, 35, 42]
+                },
+                q9: { // Group Work Preference
+                    labels: ['Strongly prefer', 'Somewhat prefer', 'Neutral', 'Slightly prefer not', 'Strongly prefer not'],
+                    data: [35, 48, 25, 15, 5]
+                },
+                q11: { // Group Work Challenges
+                    labels: ['Communication', 'Scheduling', 'Different skill levels', 'Unequal participation', 'Other'],
+                    data: [58, 52, 45, 38, 12]
+                },
+                q12: { // Group Work Values
+                    labels: ['Shared goals', 'Personality match', 'Complementary skills', 'Work attitude', 'Other'],
+                    data: [72, 45, 68, 55, 15]
+                },
+                q13: { // Share Personality Traits
+                    labels: ['Willing', 'Unwilling'],
+                    data: [68, 32]
+                },
+                q14: { // Learn Others' Personality
+                    labels: ['Willing', 'Unwilling'],
+                    data: [75, 25]
+                },
+                q15: { // Help Classmates
+                    labels: ['Yes', 'No'],
+                    data: [82, 18]
+                },
+                q16: { // Receive Help from Classmates
+                    labels: ['Yes', 'No'],
+                    data: [89, 11]
+                },
+                q17: { // Feedback Methods
+                    labels: ['Anonymous complaint wall', 'Live comments', 'Emojis & memes'],
+                    data: [65, 45, 38]
+                },
+                q18: { // Podcast Platform Interest
+                    labels: ['Will listen', 'Listen and discuss', 'Create podcasts', 'Not interested'],
+                    data: [42, 35, 18, 25]
+                },
+                q19: { // Gamification Motivation
+                    labels: ['Strongly agree', 'Agree', 'Neutral', 'Disagree', 'Strongly disagree'],
+                    data: [25, 43, 22, 8, 2]
+                },
+                q20: { // Game Elements Preference
+                    labels: ['Achievement badges', 'Progress tracking', 'Points/Leaderboards', 'Group competition', 'Map exploration', 'Other'],
+                    data: [45, 52, 38, 35, 22, 15]
+                },
+                q21: { // Self-Learning Resources
+                    labels: ['YouTube', 'Online courses', 'Bilibili', 'Library resources', 'Rednote', 'Other'],
+                    data: [78, 65, 42, 35, 28, 22]
+                },
+                q22: { // Campus Activities Interest
+                    labels: ['Library Rave Party', 'Design marathon', 'Food night', 'Academic roast', 'Support group', 'Other'],
+                    data: [35, 48, 42, 28, 32, 18]
+                },
+                q23: { // Career Guidance Preference
+                    labels: ['Access to resources', 'Real project participation'],
+                    data: [65, 35]
+                }
+            }
+        };
+
+        // 莫兰迪色系图表颜色
+        const morandiColors = [
+            '#8B7D6B', // 灰褐色
+            '#A8A8A8', // 浅灰色
+            '#D4B896', // 米色
+            '#B8A082', // 驼色
+            '#9B8B7A', // 棕色
+            '#C4B5A0', // 浅棕色
+            '#7A6B5D', // 深棕色
+            '#E8D5B7', // 奶白色
+            '#A0958A', // 灰绿色
+            '#D1C4B8'  // 浅驼色
+        ];
+
+        // Navigation functionality
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons and sections
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding section
+                btn.classList.add('active');
+                const sectionId = btn.getAttribute('data-section');
+                document.getElementById(sectionId).classList.add('active');
+            });
+        });
+
+        // Design Students Analysis Charts - Now using text summaries only
+        function initDesignAnalysisCharts() {
+            // All design analysis now uses text summaries, no charts needed
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Design Students Analysis Charts
+            initDesignAnalysisCharts();
+            // All Respondents Overview Chart - All Majors (Sorted by Count)
+            new Chart(document.getElementById('allRespondentsChart'), {
+                type: 'bar',
+                data: {
+                    labels: surveyData.majors.map(item => item.name),
+                    datasets: [{
+                        label: 'Number of Students',
+                        data: surveyData.majors.map(item => item.value),
+                        backgroundColor: [
+                            // Design & Creative - Orange tones (11 colors)
+                            '#E67E22', '#F39C12', '#F1C40F', '#E67E22', '#F39C12', '#F1C40F', '#E67E22', '#F39C12', '#F1C40F', '#E67E22', '#F39C12',
+                            // Engineering & Technology - Green tones (1 color)
+                            '#27AE60',
+                            // Business & Management - Brown tones (3 colors)
+                            '#8B4513', '#A0522D', '#D2691E',
+                            // Social Sciences & Others - Blue tones (11 colors)
+                            '#3498DB', '#2980B9', '#5DADE2', '#3498DB', '#2980B9', '#5DADE2', '#3498DB', '#2980B9', '#5DADE2', '#3498DB', '#2980B9'
+                        ],
+                        borderRadius: 4,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    indexAxis: 'x',
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Inter',
+                                    size: 10,
+                                    weight: '500'
+                                },
+                                maxRotation: 45,
+                                minRotation: 0
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Inter',
+                                    size: 10
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            });
+
+            // Design Major Distribution Bar Chart
+            new Chart(document.getElementById('designMajorChart'), {
+                type: 'bar',
+                data: {
+                    labels: surveyData.designMajors.map(item => item.name),
+                    datasets: [{
+                        label: 'Design Students',
+                        data: surveyData.designMajors.map(item => item.value),
+                        backgroundColor: [
+                            '#E67E22', '#F39C12', '#F1C40F', '#E67E22', '#F39C12', 
+                            '#F1C40F', '#E67E22', '#F39C12', '#F1C40F', '#E67E22', '#F39C12'
+                        ],
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Inter',
+                                    size: 11
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Inter',
+                                    size: 11,
+                                    weight: '500'
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            });
+
+            // Culture Background Bar Chart
+            new Chart(document.getElementById('cultureBarChart'), {
+                type: 'bar',
+                data: {
+                    labels: surveyData.cultures.map(item => item.name),
+                    datasets: [{
+                        label: 'Students',
+                        data: surveyData.cultures.map(item => item.value),
+                        backgroundColor: morandiColors[0],
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            });
+
+            // Major Detail Chart
+            new Chart(document.getElementById('majorDetailChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: surveyData.majors.map(item => item.name),
+                    datasets: [{
+                        data: surveyData.majors.map(item => item.value),
+                        backgroundColor: morandiColors.slice(0, surveyData.majors.length),
+                        borderWidth: 3,
+                        borderColor: '#ffffff',
+                        hoverBorderWidth: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: {
+                                    family: 'Inter',
+                                    size: 12,
+                                    weight: '500'
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true,
+                        duration: 2000
+                    }
+                }
+            });
+
+            // Culture Detail Chart
+            new Chart(document.getElementById('cultureDetailChart'), {
+                type: 'bar',
+                data: {
+                    labels: surveyData.cultures.map(item => item.name),
+                    datasets: [{
+                        label: 'Number of Students',
+                        data: surveyData.cultures.map(item => item.value),
+                        backgroundColor: morandiColors[1],
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            });
+
+            // Student Type Chart
+            new Chart(document.getElementById('studentTypeChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: surveyData.studentType.map(item => item.name),
+                    datasets: [{
+                        data: surveyData.studentType.map(item => item.value),
+                        backgroundColor: ['#E67E22', '#27AE60'],
+                        borderWidth: 3,
+                        borderColor: '#ffffff',
+                        hoverBorderWidth: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: {
+                                    family: 'Inter',
+                                    size: 12,
+                                    weight: '500'
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true,
+                        duration: 2000
+                    }
+                }
+            });
+
+
+
+
+
+
+        }
+
+
+        // Search and Filter functionality
+        function initQuestionSearch() {
+            const searchInput = document.getElementById('questionSearch');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const questionItems = document.querySelectorAll('.question-item');
+
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                filterQuestions(searchTerm, getActiveFilter());
+            });
+
+            // Filter functionality
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Update active button
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Filter questions
+                    const searchTerm = searchInput.value.toLowerCase();
+                    filterQuestions(searchTerm, this.dataset.filter);
+                });
+            });
+        }
+
+        function getActiveFilter() {
+            const activeBtn = document.querySelector('.filter-btn.active');
+            return activeBtn ? activeBtn.dataset.filter : 'all';
+        }
+
+        function filterQuestions(searchTerm, filter) {
+            const questionItems = document.querySelectorAll('.question-item');
+            const categories = document.querySelectorAll('.question-category');
+            
+            let visibleCount = 0;
+            
+            questionItems.forEach(item => {
+                const questionText = item.querySelector('h4').textContent.toLowerCase();
+                const category = item.dataset.category;
+                
+                const matchesSearch = searchTerm === '' || questionText.includes(searchTerm);
+                const matchesFilter = filter === 'all' || category === filter;
+                
+                if (matchesSearch && matchesFilter) {
+                    item.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Hide/show categories based on visible questions
+            categories.forEach(category => {
+                const visibleQuestions = category.querySelectorAll('.question-item[style*="flex"], .question-item:not([style*="none"])');
+                if (visibleQuestions.length === 0) {
+                    category.style.display = 'none';
+                } else {
+                    category.style.display = 'block';
+                }
+            });
+
+            // Update search results count
+            updateSearchResults(visibleCount);
+        }
+
+        function updateSearchResults(count) {
+            let resultsDiv = document.getElementById('searchResults');
+            if (!resultsDiv) {
+                resultsDiv = document.createElement('div');
+                resultsDiv.id = 'searchResults';
+                resultsDiv.style.cssText = 'margin-top: 12px; font-size: 0.875rem; color: var(--muted-600);';
+                document.querySelector('.search-filter').appendChild(resultsDiv);
+            }
+            
+            const searchInput = document.getElementById('questionSearch');
+            const filter = getActiveFilter();
+            
+            if (searchInput.value || filter !== 'all') {
+                resultsDiv.textContent = `Showing ${count} question${count !== 1 ? 's' : ''}`;
+                resultsDiv.style.display = 'block';
+            } else {
+                resultsDiv.style.display = 'none';
+            }
+        }
+
+        // Question Visualization Functions
+        function initQuestionVisualizations() {
+            createQuestionCharts();
+            initVizTabs();
+        }
+
+        function createQuestionCharts() {
+            // Create charts for Q1-Q23
+            const chartConfigs = [
+                { id: 'q1Chart', data: surveyData.questions.q1, colors: ['#E67E22', '#F39C12', '#F1C40F', '#E74C3C'], type: 'pie' },
+                { id: 'q2Chart', data: surveyData.questions.q2, color: '#9B59B6', type: 'bar' },
+                { id: 'q3Chart', data: surveyData.questions.q3, color: '#3498DB', type: 'bar' },
+                { id: 'q4Chart', data: surveyData.questions.q4, color: '#27AE60', type: 'bar' },
+                { id: 'q5Chart', data: surveyData.questions.q5, colors: ['#E74C3C', '#27AE60'], type: 'doughnut' },
+                { id: 'q6Chart', data: surveyData.questions.q6, color: '#8E44AD', type: 'bar' },
+                { id: 'q7Chart', data: surveyData.questions.q7, color: '#16A085', type: 'bar' },
+                { id: 'q8Chart', data: surveyData.questions.q8, color: '#D35400', type: 'bar' },
+                { id: 'q9Chart', data: surveyData.questions.q9, color: '#C0392B', type: 'bar' },
+                { id: 'q11Chart', data: surveyData.questions.q11, color: '#2980B9', type: 'bar' },
+                { id: 'q12Chart', data: surveyData.questions.q12, color: '#E67E22', type: 'bar' },
+                { id: 'q13Chart', data: surveyData.questions.q13, colors: ['#27AE60', '#E74C3C'], type: 'doughnut' },
+                { id: 'q14Chart', data: surveyData.questions.q14, colors: ['#27AE60', '#E74C3C'], type: 'doughnut' },
+                { id: 'q15Chart', data: surveyData.questions.q15, colors: ['#27AE60', '#E74C3C'], type: 'doughnut' },
+                { id: 'q16Chart', data: surveyData.questions.q16, colors: ['#27AE60', '#E74C3C'], type: 'doughnut' },
+                { id: 'q17Chart', data: surveyData.questions.q17, color: '#F39C12', type: 'bar' },
+                { id: 'q18Chart', data: surveyData.questions.q18, colors: ['#9B59B6', '#BDC3C7', '#95A5A6', '#7F8C8D'], type: 'pie' },
+                { id: 'q19Chart', data: surveyData.questions.q19, color: '#34495E', type: 'bar' },
+                { id: 'q20Chart', data: surveyData.questions.q20, color: '#E74C3C', type: 'bar' },
+                { id: 'q21Chart', data: surveyData.questions.q21, color: '#F39C12', type: 'bar' },
+                { id: 'q22Chart', data: surveyData.questions.q22, color: '#1ABC9C', type: 'bar' },
+                { id: 'q23Chart', data: surveyData.questions.q23, colors: ['#27AE60', '#E74C3C'], type: 'doughnut' }
+            ];
+
+            chartConfigs.forEach(config => {
+                const canvas = document.getElementById(config.id);
+                if (canvas) {
+                    new Chart(canvas, {
+                        type: config.type,
+                        data: {
+                            labels: config.data.labels,
+                            datasets: [{
+                                data: config.data.data,
+                                backgroundColor: config.colors || config.color,
+                                borderWidth: config.type === 'pie' || config.type === 'doughnut' ? 2 : 0,
+                                borderColor: '#ffffff',
+                                borderRadius: config.type === 'bar' ? 6 : 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            indexAxis: config.type === 'bar' ? 'y' : undefined,
+                            plugins: {
+                                legend: {
+                                    display: config.type === 'pie' || config.type === 'doughnut',
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 15,
+                                        usePointStyle: true,
+                                        font: { size: 10 }
+                                    }
+                                }
+                            },
+                            scales: config.type === 'bar' ? {
+                                x: { grid: { display: false } },
+                                y: { grid: { display: false } }
+                            } : undefined,
+                            animation: { duration: 1500 }
+                        }
+                    });
+                }
+            });
+        }
+
+        function initVizTabs() {
+            const tabs = document.querySelectorAll('.viz-tab');
+            const categories = document.querySelectorAll('.viz-category');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    const targetCategory = tab.dataset.category;
+                    categories.forEach(category => {
+                        if (category.dataset.category === targetCategory) {
+                            category.style.display = 'grid';
+                        } else {
+                            category.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+            initQuestionSearch();
+            initQuestionVisualizations();
+        });
+    </script>
+</body>
+</html>
